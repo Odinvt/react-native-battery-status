@@ -1,9 +1,9 @@
-# React Native BatteryStatus (remobile)
-A cordova battery status listener for react-native, support for ios and android
+# React Native BatteryStatus
+A cordova battery status listener for react-native, support for ios and android. Fork of react-native-battery-status by remobile. Added an update method to force battery stats fetch whenever the user wants.
 
 ## Installation
 ```sh
-npm install @remobile/react-native-battery-status --save
+npm install react-native-battery-stats --save
 ```
 ### Installation (iOS)
 * Drag RCTBatteryStatus.xcodeproj to your project on Xcode.
@@ -13,8 +13,8 @@ npm install @remobile/react-native-battery-status --save
 ### Installation (Android)
 ```gradle
 ...
-include ':react-native-battery-status'
-project(':react-native-battery-status').projectDir = new File(settingsDir, '../node_modules/@remobile/react-native-battery-status/android')
+include ':react-native-battery-stats'
+project(':react-native-battery-stats').projectDir = new File(settingsDir, '../node_modules/react-native-battery-stats/android')
 ```
 
 * In `android/app/build.gradle`
@@ -23,7 +23,7 @@ project(':react-native-battery-status').projectDir = new File(settingsDir, '../n
 ...
 dependencies {
     ...
-    compile project(':react-native-battery-status')
+    compile project(':react-native-battery-stats')
 }
 ```
 
@@ -56,8 +56,8 @@ var {
     Image
 } = ReactNative;
 
-var BatteryStatus = require('@remobile/react-native-battery-status');
-var Button = require('@remobile/react-native-simple-button');
+var BatteryStatus = require('react-native-battery-stats');
+var Button = require('react-native-simple-button');
 
 module.exports = React.createClass({
     getInitialState () {
@@ -79,6 +79,10 @@ module.exports = React.createClass({
             onBatteryStatus: this.onBatteryStatus,
             onBatteryLow: this.onBatteryLow,
             onBatteryCritical: this.onBatteryCritical,
+        }, () => {
+            BatteryStatus.update(); // You can call the update method whenever u want. we're calling it here on the success callback of register to force a first fetch of battery status
+        }, () => {
+            // error callback
         });
     },
     unregister() {

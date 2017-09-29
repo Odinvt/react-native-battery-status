@@ -1,11 +1,11 @@
 {
-    "name": "@remobile/react-native-battery-status",
-    "version": "1.0.2",
+    "name": "react-native-battery-stats",
+    "version": "1.0.1",
     "description": "A battery-status for react-native",
     "main": "index.js",
     "author": {
-        "name": "YunJiang.Fang",
-        "email": "42550564@qq.com"
+        "name": "Oussama El Bacha",
+        "email": "oussama.elbacha@gmail.com"
     },
     "license": "MIT",
     "keywords": [
@@ -19,12 +19,12 @@
         "remobile",
         "mobile"
     ],
-    "homepage": "https://github.com/remobile/react-native-battery-status",
+    "homepage": "https://github.com/odinvt/react-native-battery-status",
     "bugs": {
-        "url": "https://github.com/remobile/react-native-battery-status/issues"
+        "url": "https://github.com/odinvt/react-native-battery-status/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/remobile/react-native-battery-status.git"
+        "url": "git://github.com/odinvt/react-native-battery-status.git"
     }
 }
