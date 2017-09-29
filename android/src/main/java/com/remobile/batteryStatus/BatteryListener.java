@@ -55,6 +55,16 @@ public class BatteryListener extends CordovaPlugin {
     }
 
     @ReactMethod
+    public void update(ReadableArray args, Callback success, Callback error) {
+        executeReactMethod("update", args, success, error);
+    }
+
+    @ReactMethod
+    public void addListener(String eventName) {
+        // do nothing
+    }
+
+    @ReactMethod
     public void stop(ReadableArray args, Callback success, Callback error) {
         executeReactMethod("stop", args, success, error);
     }
@@ -62,10 +72,10 @@ public class BatteryListener extends CordovaPlugin {
     /**
      * Executes the request.
      *
-     * @param action        	The action to execute.
-     * @param args          	JSONArry of arguments for the plugin.
-     * @param callbackContext 	The callback context used when calling back into JavaScript.
-     * @return              	True if the action was valid, false if not.
+     * @param action            The action to execute.
+     * @param args              JSONArry of arguments for the plugin.
+     * @param callbackContext   The callback context used when calling back into JavaScript.
+     * @return                  True if the action was valid, false if not.
      */
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
@@ -92,6 +102,12 @@ public class BatteryListener extends CordovaPlugin {
             removeBatteryListener();
             callbackContext.success();
             return true;
+        }
+
+        else if (action.equals("update")) {
+            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = getReactApplicationContext().registerReceiver(null, ifilter);
+            this.updateBatteryInfo(batteryStatus);
         }
 
         return false;

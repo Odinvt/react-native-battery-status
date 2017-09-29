@@ -1,72 +1,64 @@
-/*
-*
-* Licensed to the Apache Software Foundation (ASF) under one
-* or more contributor license agreements.  See the NOTICE file
-* distributed with this work for additional information
-* regarding copyright ownership.  The ASF licenses this file
-* to you under the Apache License, Version 2.0 (the
-* "License"); you may not use this file except in compliance
-* with the License.  You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*
-*/
-
 /**
-* This class contains information about the current battery status.
-* @constructor
-*/
-const exec = require('@remobile/react-native-cordova').exec;
-const { NativeEventEmitter, DeviceEventEmitter, Platform, NativeModules } = require('react-native');
-const EventEmitter = Platform.OS === 'android' ? DeviceEventEmitter : new NativeEventEmitter(NativeModules.FileTransfer);
+ * This class contains information about the current battery status.
+ * @constructor
+ */
+import {
+  DeviceEventEmitter,
+  NativeModules
+} from 'react-native'
 
-const STATUS_CRITICAL = 5;
-const STATUS_LOW = 20;
+let { BatteryStatus } = NativeModules;
+
+let exec = require('@remobile/react-native-cordova').exec;
+
+let STATUS_CRITICAL = 5;
+let STATUS_LOW = 20;
 let subscription = null;
 
-exports.register = function (options) {
-    let _level = null;
-    let _isPlugged = null;
-    const { onBatteryStatus, onBatteryLow, onBatteryCritical } = options;
-    if (onBatteryStatus || onBatteryLow || onBatteryCritical) {
-        subscription = EventEmitter.addListener('BATTERY_STATUS_EVENT', (info) => {
-            if (info) {
-                if (_level !== info.level || _isPlugged !== info.isPlugged) {
-                    if (info.level === null && _level !== null) {
-                        return; // special case where callback is called because we stopped listening to the native side.
-                    }
+exports.register = function(options, success = null, error = null) {
+  let _level = null;
+  let _isPlugged = null;
+  const {onBatteryStatus, onBatteryLow, onBatteryCritical} = options;
+  if (onBatteryStatus||onBatteryLow||onBatteryCritical) {
+    subscription = DeviceEventEmitter.addListener('BATTERY_STATUS_EVENT', (info)=>{
+      if (info) {
+        if (_level !== info.level || _isPlugged !== info.isPlugged) {
 
-                    // Something changed. Fire batterystatus event
-                    onBatteryStatus && onBatteryStatus(info);
+          if(info.level === null && _level !== null) {
+            return; // special case where callback is called because we stopped listening to the native side.
+          }
 
-                    if (!info.isPlugged) { // do not fire low/critical if we are charging. issue: CB-4520
-                        // note the following are NOT exact checks, as we want to catch a transition from
-                        // above the threshold to below. issue: CB-4519
-                        if (_level > STATUS_CRITICAL && info.level <= STATUS_CRITICAL) {
-                            // Fire critical battery event
-                            onBatteryCritical && onBatteryCritical(info);
-                        } else if (_level > STATUS_LOW && info.level <= STATUS_LOW) {
-                            // Fire low battery event
-                            onBatteryCritical && onBatteryCritical(info);
-                        }
-                    }
-                    _level = info.level;
-                    _isPlugged = info.isPlugged;
-                }
+          // Something changed. Fire batterystatus event
+          onBatteryStatus && onBatteryStatus(info);
+
+          if (!info.isPlugged) { // do not fire low/critical if we are charging. issue: CB-4520
+            // note the following are NOT exact checks, as we want to catch a transition from
+            // above the threshold to below. issue: CB-4519
+            if (_level > STATUS_CRITICAL && info.level <= STATUS_CRITICAL) {
+              // Fire critical battery event
+              onBatteryCritical && onBatteryCritical(info);
             }
-        });
-    }
-    exec(null, null, 'BatteryStatus', 'start', []);
+            else if (_level > STATUS_LOW && info.level <= STATUS_LOW) {
+              // Fire low battery event
+              onBatteryCritical && onBatteryCritical(info);
+            }
+          }
+          _level = info.level;
+          _isPlugged = info.isPlugged;
+        }
+      }
+    });
+
+    BatteryStatus.addListener('BATTERY_STATUS_EVENT');
+  }
+  exec(success, error, "BatteryStatus", "start", []);
 };
 
-exports.unregister = function (opt) {
-    subscription && subscription.remove();
-    exec(null, null, 'BatteryStatus', 'stop', []);
+exports.unregister = function(opt) {
+  subscription && subscription.remove();
+  exec(null, null, "BatteryStatus", "stop", []);
+};
+
+exports.update = function(success = null, error = null) {
+  exec(success, error, "BatteryStatus", "update", []);
 };

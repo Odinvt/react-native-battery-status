@@ -67,6 +67,7 @@ RCT_EXPORT_MODULE(BatteryStatus)
 }
 RCT_EXPORT_CORDOVA_METHOD(start);
 RCT_EXPORT_CORDOVA_METHOD(stop);
+RCT_EXPORT_CORDOVA_METHOD(update);
 
 - (void)updateBatteryStatus:(NSNotification*)notification
 {
@@ -105,12 +106,21 @@ RCT_EXPORT_CORDOVA_METHOD(stop);
     [batteryData setObject:w3cLevel forKey:@"level"];
     return batteryData;
 }
+- (void)update:(CDVInvokedUrlCommand*)command
+{
+    if ([UIDevice currentDevice].batteryMonitoringEnabled == NO) {
+        [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+    }
+    
+    [self updateBatteryStatus:nil];
+}
 
 /* turn on battery monitoring*/
 - (void)start:(CDVInvokedUrlCommand*)command
 {
     if ([UIDevice currentDevice].batteryMonitoringEnabled == NO) {
         [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
                                                      name:UIDeviceBatteryStateDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
